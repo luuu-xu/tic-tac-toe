@@ -1,7 +1,7 @@
 const Player = (name, side) => {
     const mark = (grid) => {
         const board = gameBoard;
-        console.log('mark' + board);
+        // console.log('mark' + board);
         if (board[grid] === '') {
             board[grid] = side;
             return [board, 1];
@@ -39,23 +39,27 @@ const gameboard = (() => {
         };
     };
     const update = (board) => {
-        console.log('update' + gameBoard);
+        // console.log('update' + gameBoard);
         _delete();
         render(board[0]);
+        // console.log(gameFlow.round);
     };
     const initialize = () => {
         _delete();
         gameBoard = ['', '', '', '', '', '', '', '', ''];
-        console.log('initialize' + gameBoard);
+        round = 0;
+        // console.log('initialize' + gameBoard);
         render(gameBoard);
     };
     return {player1, player2, render, update, initialize};
 })();
 
 const gameFlow = (() => {
-    let round = 0;
     const tieDOM = () => {
         gridDivs = document.querySelectorAll('.grid');
+        if (round === 9) {
+            _announceTie();
+        };
         gridDivs.forEach(gridDiv => {
             gridDiv.addEventListener('click', () => {
                 if (round % 2 === 0) {
@@ -92,18 +96,86 @@ const gameFlow = (() => {
         return result;
     };
     const _announceWinner = (player) => {
-        console.log(gameBoard);
+        // console.log(gameBoard);
         const announcementDiv = document.getElementById('announcement');
         announcementDiv.appendChild(document.createTextNode(`${player.name} wins!`));
     };
-    return {round, tieDOM};
+    const _announceTie = () => {
+        const announcementDiv = document.getElementById('announcement');
+        announcementDiv.appendChild(document.createTextNode(`It's a tie!`));
+    };
+    const detectAI = () => {
+        console.log(document.querySelector('.btn-AI').id === 'AIon');
+        return document.querySelector('.btn-AI').id === 'AIon';
+    };
+    const vsAI = () => {
+        gridDivs = document.querySelectorAll('.grid');
+        if (round === 9) {
+            _announceTie();
+        } else {
+            if (round % 2 === 0) {
+                gridDivs.forEach(gridDiv => {
+                    gridDiv.addEventListener('click', () => {
+                        const result = gameboard.player1.mark(gridDiv.id);
+                        gameboard.update(result);
+                        round += result[1];
+                        if (_checkWin(gameboard.player1.side)) {
+                            _announceWinner(gameboard.player1);
+                        } else {
+                            vsAI();
+                        };
+                    })
+                })
+            } else {
+                const result = gameboard.player2.mark(AI.AIPicksID());
+                gameboard.update(result);
+                round += result[1];
+                if (_checkWin(gameboard.player2.side)) {
+                    _announceWinner(gameboard.player2);
+                } else {
+                    vsAI();
+                }
+            };    
+        }
+    };
+    return {tieDOM, detectAI, vsAI};
+})();
+
+const AI = (() => {
+    const toggleAI = () => {
+        const btnAI = document.querySelector('.btn-AI');
+        btnAI.addEventListener('click', () => {
+            if (btnAI.id === 'AIoff') {
+                btnAI.id = 'AIon';
+                document.getElementById('player2').value = 'AI';
+            } else {
+                btnAI.id = 'AIoff';
+                document.getElementById('player2').value = '';
+            };
+        });
+    };
+    const AIPicksID = () => {
+        const board = gameBoard;
+        let remainGrids = [];
+        for (let i = 0; i < 9; i++) {
+            if (board[i] === '') {
+                remainGrids.push(i);
+            }
+        };
+        return remainGrids[Math.floor(Math.random() * remainGrids.length)];
+    };
+    return {toggleAI, AIPicksID};
 })();
 
 const page = (() => {
     const _start = () => {
         gameboard.initialize();
         _getNames();
-        gameFlow.tieDOM();
+        if (!gameFlow.detectAI()) {
+            gameFlow.tieDOM();
+        } else {
+            gameFlow.vsAI();
+        };
     };
     const _getNames = () => {
         const name1 = document.getElementById('player1').value;
@@ -112,6 +184,7 @@ const page = (() => {
         gameboard.player2.name = name2 ? name2 : 'Player O';
     };
     const start = () => {
+        AI.toggleAI();
         const btnStart = document.getElementById('btn-start');
         btnStart.addEventListener('click', _start);
     };
@@ -119,4 +192,5 @@ const page = (() => {
 })();
 
 let gameBoard = ['', '', '', '', '', '', '', '', ''];
+let round = 0;
 page.start();

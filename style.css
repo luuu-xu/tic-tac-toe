@@ -38,8 +38,7 @@ input[type="text"]:focus {
     border: 2px solid black;
 }
 
-#btn-start,
-#btn-reset {
+#btn-start {
     width: 15rem;
     font-family: inherit;
     font-size: 1.2rem;
@@ -51,7 +50,23 @@ input[type="text"]:focus {
 }
 
 #btn-start:hover,
-#btn-reset:hover {
+.btn-AI:hover {
+    color: white;
+    background-color: black;
+}
+
+.btn-AI{
+    width: 3rem;
+    font-family: inherit;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: .5rem .5rem;
+    border: 2px solid black;
+    color: black;
+    background-color: white;
+}
+
+#AIon {
     color: white;
     background-color: black;
 }
@@ -83,6 +98,10 @@ input[type="text"]:focus {
     align-content: center;
     justify-content: center;
     border: 2px solid black;
+}
+
+.grid:hover {
+    background-color: gainsboro;
 }
 
 .announcement-container {
